@@ -22,23 +22,24 @@ Two things interrupt that path. When too many registrants remain unconfirmed for
 
 ```mermaid
 flowchart TD
-    S(["Planning checkpoint reached before the hackathon"]) --> T1
-    T1["T1 Retrieve registration list and prior event attendance records"] --> T2["T2 Read confirmation responses and registration signals"]
-    T2 --> T3["T3 Score each registrant's likelihood of attending"]
-    T3 --> T4["T4 Aggregate scores into a forecast range"]
-    T4 --> D1{"D1 Is the forecast confidence within tolerance?"}
-    D1 -- "No" --> D2{"D2 Has the two-message contact limit been reached?"}
-    D2 -- "No" --> T5["T5 Send confirmation request to unconfirmed registrants"]
-    T5 --> T6["T6 Log confirmation responses received"]
+    S0([Run starts: planning checkpoint reached]) --> T1["T1: Retrieve Registration List and Prior Attendance Records"]
+    T1 --> T2["T2: Read Confirmation Responses and Registration Signals"]
+    T2 --> T3["T3: Score Each Registrant's Likelihood of Attending"]
+    T3 --> T4["T4: Aggregate Scores Into a Forecast Range"]
+    T4 --> D1{"Forecast confidence within tolerance?"}
+    D1 -->|No| D2{"Two-message contact limit reached?"}
+    D2 -->|No| T5["T5: Send Confirmation Request to Unconfirmed Registrants"]
+    T5 --> T6["T6: Log Confirmation Responses Received"]
     T6 --> T3
-    D2 -- "Yes, boundary blocks further contact" --> T7["T7 Route low-confidence forecast to organizer review"]
-    D1 -- "Yes" --> T8["T8 Publish forecast and order recommendation to organizers"]
-    T7 --> T9["T9 Compare published forecast against latest confirmed headcount"]
+    D2 -->|Yes, boundary blocks further contact| T7["T7: Flag Forecast as Low Confidence and Route to Review"]
+    T7 --> H1["H1: Organizers Review and Decide Order Quantities"]
+    D1 -->|Yes| T8["T8: Publish Forecast and Order Recommendation to Organizers"]
+    H1 --> T9["T9: Compare Published Forecast Against Confirmed Headcount"]
     T8 --> T9
-    T9 --> T10["T10 Record forecast, inputs, responses, and gap"]
-    T10 --> D3{"D3 Was the forecast gap outside the tolerance band?"}
-    D3 -- "No" --> E(["Run complete: forecast published and recorded"])
-    D3 -- "Yes" --> T11["T11 Update scoring weights and tolerance band"]
-    T11 --> E
-    T11 -.-> T3
+    T9 --> T10["T10: Record Forecast, Inputs, Responses, and Gap"]
+    T10 --> D3{"Forecast gap outside the tolerance band?"}
+    D3 -->|No| C1([C1: Run Complete])
+    D3 -->|Yes| T11["T11: Update Scoring Weights and Tolerance Band"]
+    T11 --> C1
+    T11 -. Revised guidance feeds the next run .-> T3
 ```
