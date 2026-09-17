@@ -8,7 +8,7 @@ task_owner: "HackTrack agent; the CPVC organizers who order food, drinks, and sw
 
 # Agent Inference Configuration
 Provider: Claude
-Model: "claude-sonnet-4-5"
+Model: "claude-sonnet-5"
 Role: Interpret supplied registrant evidence, select the next permitted subtask, and produce an evidence-backed attendance likelihood for each registrant.
 Maximum inference requests per task run: "20"
 On inference failure or exhausted limits: Record the unresolved status and hand the case to the CPVC organizer review queue.
