@@ -56,18 +56,18 @@ On inference failure or exhausted limits: Record the unresolved status and hand 
 
 ### Scoring Rule
 
-Every registrant's likelihood is computed on a 0 to 100 scale using the same additive rule, so that two runs with the same inputs produce the same score.
+Every registrant's likelihood is computed on a 0 to 100 scale using the same additive rule, so that two runs with the same inputs produce the same score. The authoritative table lives in the `score-registrant-attendance` skill (`agent/skills/score-registrant-attendance/references/scoring-rules.md`) and is applied by its `score_registrants.py` script; the values are repeated here so the spec is readable on its own.
 
 - **Baseline:** Every registrant starts at 40, the club's observed attendance-to-registration rate from the last build event.
-- **Signals:** Each signal in Input 5 has a weight expressed in points. A signal that is present and favorable adds its full weight; a signal that is present and unfavorable subtracts its full weight; a signal that is unknown contributes 0 and is listed as unknown in the evidence summary. The agent never invents a partial adjustment for an unknown signal.
+- **Signals:** Each signal in Input 5 has a weight expressed in points. A signal that is present adds or subtracts its stated points; a signal that is unknown contributes 0 and is listed as unknown in the evidence summary. The agent never invents a partial adjustment for an unknown signal.
 - **Starting weights (organizers may revise through T12 and H2):**
-  - Confirmation reply: yes +30, maybe +5, no reply 0, no −30
-  - Past club attendance: checked in at a prior event +15, registered before but did not check in −10, no matched history unknown (0)
-  - Registration timing: registered 14 or more days before the event +10, registered 3 to 13 days before 0, registered within 2 days +5
-  - Team signup: on a team where at least one other member is scored likely +10; solo or team with no such member 0
-- **Overrides:** An explicit cancellation through the registration form, or a clear "no" reply that is the registrant's most recent signal, sets the score to 0 and the label to unlikely regardless of other signals. A "yes" reply followed by a later cancellation is a cancellation.
+  - Confirmation reply: yes +35, maybe +10, no reply or unknown 0
+  - Past club attendance: checked in at a prior CPVC event +15, registered before but never checked in −15, no matched history unknown (0)
+  - Registration timing: registered within 3 days of the event +10 (late sign-ups usually have concrete plans), 4 to 14 days before 0, more than 14 days before −5 (early sign-ups more often change plans)
+  - Team signup: signed up with a named team +10; solo 0
+- **Overrides (applied after all additive points and winning over them):** A clear "no" reply sets the score to 5. A cancellation or withdrawal through the registration form sets the score to 0. If both are present, use 0. A "yes" reply followed by a later cancellation is a cancellation.
 - **Bounds:** Scores are clamped to the 0 to 100 range after all signals are applied.
-- **Label thresholds:** 70 or above is likely; 40 to 69 is uncertain; below 40 is unlikely.
+- **Label thresholds:** 65 or above is likely; 35 to 64 is uncertain; below 35 is unlikely.
 
 ### Permitted Subtask 1
 
@@ -100,7 +100,7 @@ Every registrant's likelihood is computed on a 0 to 100 scale using the same add
 ### Permitted Subtask 5
 
 - **Subtask name:** Identify Confirmation Candidates
-- **Subtask description:** Finds the unconfirmed registrants whose uncertainty most affects the forecast and produces a list of them with each one's current contact count, taken from Input 4 when present and otherwise from Input 1.
+- **Subtask description:** Finds the registrants labeled uncertain whose confirmation status is no reply or unknown, ranks them by how close their score is to the 50-point midpoint (closest first, because those registrants swing the forecast the most), and produces the list with each one's current contact count, taken from Input 4 when present and otherwise from Input 1.
 - **Subtask boundary:** Do not send any message. Leave off anyone whose contact count is two or more, and anyone whose contact count is missing, because the system goal limits contact to two messages per participant and a missing count cannot be assumed to be below the limit.
 - **Retry limits:** Perform once per scoring pass.
 
