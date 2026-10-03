@@ -1,0 +1,13 @@
+# Secret credentials - never commit
+api_keys/
+.env
+credentials.json
+token.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Local data
+data/local/
